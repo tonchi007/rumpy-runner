@@ -1,5 +1,14 @@
 
 window.onload = function () {
+// Prevenir que la barra espaciadora reinicie el juego si estás escribiendo
+    window.addEventListener("keydown", function (e) {
+        const activeEl = document.activeElement;
+        if (e.code === "Space" && activeEl.tagName === "INPUT") {
+            e.stopPropagation();
+            return;
+        }
+    });
+
 let scoreStarted = false;
 
 const canvas = document.getElementById("game-canvas");
@@ -71,9 +80,9 @@ const canvas = document.getElementById("game-canvas");
             { img: new Image(), x: canvas.width + 600, y: 750, speed: 1.5 },
         ];
         decorativeImages.forEach((deco, index) => {
-            deco.img.src = `./cloud${index + 1}.png`;
+            deco.img.src = `assets/cloud${index + 1}.png`;
             deco.img.onload = onImageLoad;
-            deco.img.onerror = () => console.error(`Error al cargar la imagen: cloud${index + 1}.png`);
+            deco.img.onerror = () => console.error(`Error al cargar la imagen: assets/cloud${index + 1}.png`);
         });
 
         // Cargar imágenes del avión
@@ -186,8 +195,8 @@ const canvas = document.getElementById("game-canvas");
         let obstacles = [];
 
         // Sonidos
-        const jumpSound = new Audio('./jump.wav');
-        const gameOverSound = new Audio('./gameover.wav');
+        const jumpSound = new Audio('assets/jump.wav');
+        const gameOverSound = new Audio('assets/gameover.wav');
 
         // Función para verificar colisiones
         function checkCollision(rect1, rect2) {
@@ -286,6 +295,7 @@ const canvas = document.getElementById("game-canvas");
 
         // Dibujar el juego
         function draw() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);  // Reset transform
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             console.log("Dibujando el juego...");
             
@@ -318,7 +328,7 @@ const canvas = document.getElementById("game-canvas");
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             ctx.fillStyle = "white";
-            ctx.font = `${60 * scale}px Arial`;
+            ctx.font = `${40 * scale}px Arial`;
             ctx.textAlign = "center";
             ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2);
             ctx.font = `${40 * scale}px Arial`;
@@ -333,17 +343,19 @@ const canvas = document.getElementById("game-canvas");
             ctx.fillStyle = "white";
             ctx.font = `${60 * scale}px Arial`;
             ctx.textAlign = "center";
-            ctx.fillText("Presiona 'Iniciar Partida' para comenzar", canvas.width / 2, canvas.height / 2);
         }
 
         // Función para iniciar el juego
         function startGame() {
+    document.getElementById("score-form").style.display = "none";
+    document.getElementById("controls").style.display = "none";
             gameStarted = true;
             startButton.style.display = "none"; // Ocultar el botón de inicio
         }
 
         // Función para reiniciar el juego
         function resetGame() {
+    document.getElementById("controls").style.display = "block";
             // Restablecer las variables del juego
             player = { 
                 x: 100 * scale, 
@@ -387,6 +399,8 @@ const canvas = document.getElementById("game-canvas");
             if (playerName === "") {
                 alert("Por favor, ingresa tu nombre.");
                 return;
+    document.getElementById("score-form").style.display = "none";
+    document.getElementById("controls").style.display = "flex";
             }
 
             // Obtener los scores guardados o inicializar un array vacío
@@ -517,5 +531,12 @@ playerNameInput.addEventListener("keydown", (event) => {
             button.addEventListener('touchend', () => {
                 buttonsPressed = false;
             });
-        });
+        })
+    // Exponer funciones globales
+    window.startGame = startGame;
+    window.showScores = showScores;
+    window.resetGame = resetGame;
+    window.saveScore = saveScore;
+    window.cancelScore = cancelScore
+    window.hideScores = hideScores;
 };
